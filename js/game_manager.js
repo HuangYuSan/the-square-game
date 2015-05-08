@@ -63,7 +63,12 @@ GameManager.prototype.addStartTiles = function () {
   this.grid.insertTile(new Tile({ x: 2, y: 2 }, "I"));
   this.grid.insertTile(new Tile({ x: 0, y: 0 }, "K"));
   this.grid.insertTile(new Tile({ x: 0, y: 1 }, "K"));
-  this.grid.insertTile(new Tile({ x: 1, y: 0 }, "K"));
+  this.grid.insertTile(new Tile({ x: 1, y: 1 }, "K"));
+  this.grid.insertTile(new Tile({ x: 3, y: 2 }, "K"));
+  this.grid.insertTile(new Tile({ x: 3, y: 1 }, "S"));
+  this.grid.insertTile(new Tile({ x: 3, y: 0 }, "S"));
+  this.grid.insertTile(new Tile({ x: 1, y: 3 }, "K"));
+  this.grid.insertTile(new Tile({ x: 1, y: 0 }, "S"));
 };
 
 // Sends the updated grid to the actuator
@@ -117,6 +122,15 @@ GameManager.prototype.moveTile = function (tile, cell) {
   tile.updatePosition(cell);
 };
 
+
+// Drop a tile
+GameManager.prototype.dropTile = function (tile) {
+ var bottomposition = this.findFarthestPosition(tile, {x:0, y:1});
+    this.moveTile(tile, bottomposition.farthest);
+};
+
+
+
 // Move tiles on the grid in the specified direction
 GameManager.prototype.move = function (direction) {
   // 0: up, 1: right, 2: down, 3: left
@@ -143,9 +157,11 @@ GameManager.prototype.move = function (direction) {
         var positions = self.findFarthestPosition(cell, vector);
         var next      = self.grid.cellContent(positions.next);
         var step      = self.grid.cellContent(positions.step);
+        var stepstep  = self.grid.cellContent(self.findFarthestPosition(positions.step, vector).step);
 
         // Only one merger per row traversal?
         if (tile.value == "I") {
+                var above = self.grid.cellContent({x:cell.x, y:cell.y-1});
 		if (step && step.value == "K") {
 		  var merged = new Tile(positions.step, "I");
 		  merged.mergedFrom = [tile, step];
@@ -158,10 +174,17 @@ GameManager.prototype.move = function (direction) {
 
 		  // Update the score
 		  self.score += 1;
-
-		  // The mighty 2048 tile
-		  if (merged.value === 2048) self.won = true;
-		} else {
+		} else if (self.grid.cellAvailable(positions.step)) {
+		  self.moveTile(tile, positions.step);
+		}
+		if (direction == 1 && step && step.value == "S" && self.grid.withinBounds(self.findFarthestPosition(positions.step, vector).step) &&
+           self.grid.cellAvailable(self.findFarthestPosition(positions.step, vector).step)) {
+			self.moveTile(step, self.findFarthestPosition(positions.step, vector).step);
+		  self.moveTile(tile, positions.step);
+		}
+		if (direction == 3 && step && step.value == "S" && self.grid.withinBounds(self.findFarthestPosition(positions.step, vector).step) &&
+           self.grid.cellAvailable(self.findFarthestPosition(positions.step, vector).step)) {
+			self.moveTile(step, self.findFarthestPosition(positions.step, vector).step);
 		  self.moveTile(tile, positions.step);
 		}
 	}
@@ -173,61 +196,15 @@ GameManager.prototype.move = function (direction) {
     });
   });
 
-  if (moved) {
-
-    if (!this.movesAvailable()) {
-      this.over = true; // Game over!
-    }
-
-    this.actuate();
-  }
-};
-
-// Move tiles on the grid in the specified direction
-GameManager.prototype.moveold = function (direction) {
-  // 0: up, 1: right, 2: down, 3: left
-  var self = this;
-
-  if (this.isGameTerminated()) return; // Don't do anything if the game's over
-
-  var cell, tile;
-
-  var vector     = this.getVector(direction);
-  var traversals = this.buildTraversals(vector);
-  var moved      = false;
-
-  // Save the current tile positions and remove merger information
-  this.prepareTiles();
-
-  // Traverse the grid in the right direction and move tiles
-  traversals.x.forEach(function (x) {
+traversals.x.forEach(function (x) {
     traversals.y.forEach(function (y) {
       cell = { x: x, y: y };
       tile = self.grid.cellContent(cell);
 
       if (tile) {
-        var positions = self.findFarthestPosition(cell, vector);
-        var next      = self.grid.cellContent(positions.next);
-
-        // Only one merger per row traversal?
-        if (next && next.value === tile.value && !next.mergedFrom) {
-          var merged = new Tile(positions.next, tile.value * 2);
-          merged.mergedFrom = [tile, next];
-
-          self.grid.insertTile(merged);
-          self.grid.removeTile(tile);
-
-          // Converge the two tiles' positions
-          tile.updatePosition(positions.next);
-
-          // Update the score
-          self.score += merged.value;
-
-          // The mighty 2048 tile
-          if (merged.value === 2048) self.won = true;
-        } else {
-          self.moveTile(tile, positions.farthest);
-        }
+        if (tile.value == "S") {
+		self.dropTile(tile);
+	}
 
         if (!self.positionsEqual(cell, tile)) {
           moved = true; // The tile moved from its original cell!
