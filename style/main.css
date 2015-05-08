@@ -319,7 +319,19 @@ hr {
   .tile.tile-K .tile-inner {
     color: rgb(239, 239, 239);
     background: rgb(229, 223, 101);
-    box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0), inset 0 0 0 1px rgba(255, 255, 255, 0); }
+    box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0), inset 0 0 0 1px rgba(255, 255, 255,h 0); }
+  .tile.tile-S .tile-inner {
+    color: rgb(239, 239, 239);
+    background: grey;
+    box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0), inset 0 0 0 1px rgba(255, 255, 255,h 0); }
+  .tile.tile-D .tile-inner {
+    color: rgb(239, 239, 239);
+    background: rgb(171, 61, 61);
+    box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0), inset 0 0 0 1px rgba(255, 255, 255,h 0); }
+  .tile.tile-Z .tile-inner {
+  color: rgb(36, 8, 8);
+  background: rgb(234, 234, 234);
+    box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0), inset 0 0 0 1px rgba(255, 255, 255,h 0); }
 
 @-webkit-keyframes appear {
   0% {

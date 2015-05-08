@@ -66,9 +66,10 @@ GameManager.prototype.addStartTiles = function () {
   this.grid.insertTile(new Tile({ x: 1, y: 1 }, "K"));
   this.grid.insertTile(new Tile({ x: 3, y: 2 }, "K"));
   this.grid.insertTile(new Tile({ x: 3, y: 1 }, "S"));
-  this.grid.insertTile(new Tile({ x: 3, y: 0 }, "S"));
+  this.grid.insertTile(new Tile({ x: 3, y: 0 }, "D"));
   this.grid.insertTile(new Tile({ x: 1, y: 3 }, "K"));
-  this.grid.insertTile(new Tile({ x: 1, y: 0 }, "S"));
+  this.grid.insertTile(new Tile({ x: 1, y: 0 }, "D"));
+  this.grid.insertTile(new Tile({ x: 2, y: 3 }, "Z"));
 };
 
 // Sends the updated grid to the actuator
@@ -178,12 +179,12 @@ GameManager.prototype.move = function (direction) {
 		} else if (self.grid.cellAvailable(positions.step)) {
 		  self.moveTile(tile, positions.step);
 		}
-		if (direction == 1 && step && step.value == "S" && self.grid.withinBounds(self.findFarthestPosition(positions.step, vector).step) &&
+		if (direction == 1 && step && (step.value == "S" || step.value == "D") && self.grid.withinBounds(self.findFarthestPosition(positions.step, vector).step) &&
            self.grid.cellAvailable(self.findFarthestPosition(positions.step, vector).step)) {
 			self.moveTile(step, self.findFarthestPosition(positions.step, vector).step);
 		  self.moveTile(tile, positions.step);
 		}
-		if (direction == 3 && step && step.value == "S" && self.grid.withinBounds(self.findFarthestPosition(positions.step, vector).step) &&
+		if (direction == 3 && step && (step.value == "S" || step.value == "D") && self.grid.withinBounds(self.findFarthestPosition(positions.step, vector).step) &&
            self.grid.cellAvailable(self.findFarthestPosition(positions.step, vector).step)) {
 			self.moveTile(step, self.findFarthestPosition(positions.step, vector).step);
 		  self.moveTile(tile, positions.step);
@@ -203,7 +204,7 @@ dropTraversals.y.forEach(function (y) {
       tile = self.grid.cellContent(cell);
 
       if (tile) {
-        if (tile.value == "S") {
+        if (tile.value == "S" || tile.value == "D") {
 		self.dropTile(tile);
 	}
 
@@ -222,7 +223,42 @@ dropTraversals.y.forEach(function (y) {
 
     this.actuate();
   }
+
+dropTraversals.y.forEach(function (y) {
+    dropTraversals.x.forEach(function (x) {
+      cell = { x: x, y: y };
+      tile = self.grid.cellContent(cell);
+
+      if (tile) {
+        if (tile.value == "D" && self.grid.withinBounds({x:tile.x, y:tile.y+1})) {
+        var below      = self.grid.cellContent({x:tile.x, y:tile.y+1});
+if (below && below.value=="Z") {
+		var merged = new Tile({x:tile.x, y:tile.y+1}, "Z");
+		  merged.mergedFrom = [tile, self.grid.cellContent({x:tile.x, y:tile.y+1})];
+
+		  self.grid.insertTile(merged);
+		  self.grid.removeTile(tile);
+		  tile.updatePosition({x:tile.x, y:tile.y+1});
+	}}
+
+        if (!self.positionsEqual(cell, tile)) {
+          moved = true; // The tile moved from its original cell!
+        }
+      }
+    });
+  });
+
+  if (moved) {
+
+    if (!this.movesAvailable()) {
+      this.over = true; // Game over!
+    }
+
+    this.actuate();
+  }
 };
+
+
 
 // Get the vector representing the chosen direction
 GameManager.prototype.getVector = function (direction) {
