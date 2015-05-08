@@ -142,6 +142,7 @@ GameManager.prototype.move = function (direction) {
 
   var vector     = this.getVector(direction);
   var traversals = this.buildTraversals(vector);
+  var dropTraversals = this.buildTraversals({x:0, y:1});
   var moved      = false;
 
   // Save the current tile positions and remove merger information
@@ -196,8 +197,8 @@ GameManager.prototype.move = function (direction) {
     });
   });
 
-traversals.x.forEach(function (x) {
-    traversals.y.forEach(function (y) {
+dropTraversals.y.forEach(function (y) {
+    dropTraversals.x.forEach(function (x) {
       cell = { x: x, y: y };
       tile = self.grid.cellContent(cell);
 
