@@ -111,17 +111,46 @@ GameManager.prototype.addSafeTile = function (position, value) {
 
 // Set up the initial tiles to start the game with
 GameManager.prototype.addStartTiles = function () {
-  this.addSafeTile({ x: 2, y: 1 }, "I");
-  this.addSafeTile({ x: 2, y: 2 }, "K");
+  this.addSafeTile({ x: 3, y: 3 }, "I");
+  this.addSafeTile({ x: 3, y: 0 }, "D");
+  this.addSafeTile({ x: 3, y: 2 }, "D");
+  this.addSafeTile({ x: 6, y: 1 }, "D");
+  this.addSafeTile({ x: 5, y: 0 }, "S");
+  this.addSafeTile({ x: 4, y: 3 }, "S");
+  this.addSafeTile({ x: 1, y: 0 }, "E");
+  this.addSafeTile({ x: 6, y: 2 }, "E");
+  this.addSafeTile({ x: 7, y: 2 }, "E");
+  this.addSafeTile({ x: 0, y: 2 }, "E");
+  this.addSafeTile({ x: 8, y: 2 }, "E");
+  this.addSafeTile({ x: 0, y: 4 }, "E");
+  this.addSafeTile({ x: 1, y: 4 }, "E");
+  this.addSafeTile({ x: 2, y: 4 }, "E");
+  this.addSafeTile({ x: 3, y: 4 }, "E");
+  this.addSafeTile({ x: 4, y: 4 }, "E");
+  this.addSafeTile({ x: 6, y: 4 }, "E");
+  this.addSafeTile({ x: 7, y: 4 }, "E");
+  this.addSafeTile({ x: 3, y: 1 }, "E");
+  this.addSafeTile({ x: 8, y: 4 }, "Z");
   this.addSafeTile({ x: 0, y: 0 }, "K");
   this.addSafeTile({ x: 0, y: 1 }, "K");
+  this.addSafeTile({ x: 0, y: 2 }, "K");
+  this.addSafeTile({ x: 0, y: 3 }, "K");
   this.addSafeTile({ x: 1, y: 1 }, "K");
-  this.addSafeTile({ x: 3, y: 2 }, "K");
-  this.addSafeTile({ x: 3, y: 1 }, "S");
-  this.addSafeTile({ x: 3, y: 0 }, "D");
   this.addSafeTile({ x: 1, y: 3 }, "K");
-  this.addSafeTile({ x: 1, y: 0 }, "D");
-  this.addSafeTile({ x: 2, y: 3 }, "Z");
+  this.addSafeTile({ x: 0, y: 6 }, "K");
+  this.addSafeTile({ x: 0, y: 7 }, "K");
+  this.addSafeTile({ x: 0, y: 8 }, "K");
+  this.addSafeTile({ x: 1, y: 5 }, "K");
+  this.addSafeTile({ x: 1, y: 7 }, "K");
+  this.addSafeTile({ x: 1, y: 8 }, "K");
+  this.addSafeTile({ x: 6, y: 0 }, "K");
+  this.addSafeTile({ x: 7, y: 0 }, "K");
+  this.addSafeTile({ x: 8, y: 0 }, "K");
+  this.addSafeTile({ x: 7, y: 1 }, "K");
+  this.addSafeTile({ x: 8, y: 1 }, "K");
+  this.addSafeTile({ x: 5, y: 1 }, "K");
+  this.addSafeTile({ x: 2, y: 1 }, "/");
+  this.addSafeTile({ x: 1, y: 2 }, "\\");
 };
 
 // Sends the updated grid to the actuator
@@ -225,9 +254,6 @@ GameManager.prototype.move = function (direction) {
 
 		  // Converge the two tiles' positions
 		  tile.updatePosition(positions.step);
-
-		  // Update the score
-		  self.score += 1;
 		} else if (self.grid.cellAvailable(positions.step)) {
 		  self.moveTile(tile, positions.step);
 		}
@@ -250,64 +276,50 @@ GameManager.prototype.move = function (direction) {
     });
   });
 
-dropTraversals.y.forEach(function (y) {
-    dropTraversals.x.forEach(function (x) {
-      cell = { x: x, y: y };
-      tile = self.grid.cellContent(cell);
+moved = true;
+while (moved) {
+	moved = false;
+	dropTraversals.y.forEach(function (y) {
+		dropTraversals.x.forEach(function (x) {
+			cell = { x: x, y: y };
+			tile = self.grid.cellContent(cell);
+		      if (tile) {
+			if (tile.value == "S" || tile.value == "D") {
+				self.dropTile(tile);
+				if (self.grid.cellContent({x:x, y:y+1}) && self.grid.cellContent({x:x, y:y+1}).value == "/" && !self.grid.cellContent({x:x-1, y:y+1})) {
+		    			self.moveTile(tile, {x:x-1, y:y+1});
+				}
+				if (self.grid.cellContent({x:x, y:y+1}) && self.grid.cellContent({x:x, y:y+1}).value == "\\" && !self.grid.cellContent({x:x+1, y:y+1})) {
+		    			self.moveTile(tile, {x:x+1, y:y+1});
+				}
+			}
 
-      if (tile) {
-        if (tile.value == "S" || tile.value == "D") {
-		self.dropTile(tile);
-	}
-
-        if (!self.positionsEqual(cell, tile)) {
-          moved = true; // The tile moved from its original cell!
-        }
-      }
-    });
-  });
-
-  if (moved) {
-
-    if (!this.movesAvailable()) {
-      this.over = true; // Game over!
-    }
-
-    this.actuate();
-  }
-
-dropTraversals.y.forEach(function (y) {
-    dropTraversals.x.forEach(function (x) {
-      cell = { x: x, y: y };
-      tile = self.grid.cellContent(cell);
-
-      if (tile) {
-        if (tile.value == "D" && self.grid.withinBounds({x:tile.x, y:tile.y+1})) {
-        var below      = self.grid.cellContent({x:tile.x, y:tile.y+1});
-if (below && below.value=="Z") {
-		var merged = new Tile({x:tile.x, y:tile.y+1}, "Z");
-		  merged.mergedFrom = [tile, self.grid.cellContent({x:tile.x, y:tile.y+1})];
-
-		  self.grid.insertTile(merged);
-		  self.grid.removeTile(tile);
-		  tile.updatePosition({x:tile.x, y:tile.y+1});
-	}}
-
-        if (!self.positionsEqual(cell, tile)) {
-          moved = true; // The tile moved from its original cell!
-        }
-      }
-    });
-  });
-
-  if (moved) {
-
-    if (!this.movesAvailable()) {
-      this.over = true; // Game over!
-    }
-
-    this.actuate();
-  }
+			if (tile) {
+				if (tile.value == "D" && self.grid.withinBounds({x:tile.x, y:tile.y+1})) {
+				var below      = self.grid.cellContent({x:tile.x, y:tile.y+1});
+					if (below && below.value=="Z") {
+						var merged = new Tile({x:tile.x, y:tile.y+1}, "Z");
+						merged.mergedFrom = [tile, self.grid.cellContent({x:tile.x, y:tile.y+1})];
+						self.grid.insertTile(merged);
+						self.grid.removeTile(tile);
+						tile.updatePosition({x:tile.x, y:tile.y+1});
+						// Update the score
+						self.score += 1;
+alert(self.score);
+						if (self.score == 3) {
+							self.won = true;
+						}
+					}
+				}
+				if (!self.positionsEqual(cell, tile)) {
+					moved = true; // The tile moved from its original cell!
+				}
+			}
+}
+		});
+	  });
+}
+this.actuate();
 };
 
 
