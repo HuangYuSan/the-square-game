@@ -1,5 +1,6 @@
-function GameManager(size, InputManager, Actuator, StorageManager) {
-  this.size           = size; // Size of the grid
+function GameManager(InputManager, Actuator, StorageManager) {
+  this.dim            = {x:3, y:3};
+  this.size           = Math.max(this.dim.x, this.dim.y);
   this.inputManager   = new InputManager;
   this.storageManager = new StorageManager;
   this.actuator       = new Actuator;
@@ -7,8 +8,9 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   this.inputManager.on("move", this.move.bind(this));
   this.inputManager.on("restart", this.restart.bind(this));
   this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
-
+  
   this.setup();
+
 }
 
 // Restart the game
@@ -29,26 +31,69 @@ GameManager.prototype.isGameTerminated = function () {
   return this.over || (this.won && !this.keepPlaying);
 };
 
+// Create the grid
+GameManager.prototype.createGrid = function (dim) {
+var stylesheetToInsert = document.createElement('style');  
+document.getElementsByTagName('head')[0].appendChild(stylesheetToInsert);
+this.insertedStylesheet = document.styleSheets[document.styleSheets.length - 1];
+this.gridContainer = document.getElementById("grid-container");
+this.gridContainer.empty();
+this.insertedStylesheet.empty();
+var size           = Math.max(dim.x, dim.y);
+var cellMargin = 500/(97/12 * size + 1);
+var cellSize = 500/(size * 97/85 + 12/85);
+  var row;
+  var cell;
+  var x = 0;
+	for (y = 0; y < dim.y; y++) {
+		row = document.createElement("div");
+		row.classList.add("grid-row");
+		for (x = 0; x < dim.x; x++) {
+			cell = document.createElement("div");
+			// cell.textContent = x + "|" + y;
+			cell.classList.add("grid-cell");
+			row.appendChild(cell);
+
+this.insertedStylesheet.insertRule(".tile.tile-position-" + (x+1) + "-" + (y+1) + "{-webkit-transform: translate(" + x * cellSize + "px, " + y * cellSize + "px); -moz-transform: translate(" + x * cellSize + "px, " + y * cellSize + "px); transform: translate(" + x * (cellSize + cellMargin) + "px, " + y * (cellSize + cellMargin) + "px);}", this.insertedStylesheet.cssRules.length);
+
+		}
+		this.gridContainer.appendChild(row);
+	}
+	
+
+this.insertedStylesheet.insertRule(".grid-cell {width: " + cellSize + "px; height: " + cellSize + "px; margin-right: " + cellMargin + "px;}", this.insertedStylesheet.cssRules.length);
+this.insertedStylesheet.insertRule(".tile, .tile .tile-inner {width: " + cellSize + "px; height: " + cellSize + "px; line-height: " + cellSize + "px}", this.insertedStylesheet.cssRules.length);
+this.insertedStylesheet.insertRule(".grid-row {margin-bottom: " + cellMargin + "px}", this.insertedStylesheet.cssRules.length);
+this.insertedStylesheet.insertRule(".game-container {padding: " + cellMargin + "px}", this.insertedStylesheet.cssRules.length);
+this.insertedStylesheet.insertRule(".tile .tile-inner {font-size: " + 220/size + "px; border-radius: " + 12/size + "px;}", this.insertedStylesheet.cssRules.length);
+}
+
+
 // Set up the game
 GameManager.prototype.setup = function () {
   var previousState = this.storageManager.getGameState();
 
   // Reload the game from a previous game if present
   if (previousState) {
-    this.grid        = new Grid(previousState.grid.size,
+    this.grid        = new Grid({x:previousState.grid.dim.x, y:previousState.grid.dim.y} ,
                                 previousState.grid.cells); // Reload grid
     this.score       = previousState.score;
     this.over        = previousState.over;
     this.won         = previousState.won;
     this.keepPlaying = previousState.keepPlaying;
   } else {
-    this.grid        = new Grid(this.size);
+var x = document.getElementById("xsize").value;
+var y = document.getElementById("ysize").value;
+    this.grid        = new Grid({x:x, y:y});
     this.score       = 0;
     this.over        = false;
     this.won         = false;
     this.keepPlaying = false;
 
+    // Create the grid
+
     // Add the initial tiles
+    this.createGrid({x:x, y:y});
     this.addStartTiles();
   }
 
@@ -62,12 +107,12 @@ GameManager.prototype.addStartTiles = function () {
   this.grid.insertTile(new Tile({ x: 0, y: 0 }, "K"));
   this.grid.insertTile(new Tile({ x: 0, y: 1 }, "K"));
   this.grid.insertTile(new Tile({ x: 1, y: 1 }, "K"));
-  this.grid.insertTile(new Tile({ x: 3, y: 2 }, "K"));
-  this.grid.insertTile(new Tile({ x: 3, y: 1 }, "S"));
-  this.grid.insertTile(new Tile({ x: 3, y: 0 }, "D"));
-  this.grid.insertTile(new Tile({ x: 1, y: 3 }, "K"));
+//  this.grid.insertTile(new Tile({ x: 3, y: 2 }, "K"));
+//  this.grid.insertTile(new Tile({ x: 3, y: 1 }, "S"));
+//  this.grid.insertTile(new Tile({ x: 3, y: 0 }, "D"));
+//  this.grid.insertTile(new Tile({ x: 1, y: 3 }, "K"));
   this.grid.insertTile(new Tile({ x: 1, y: 0 }, "D"));
-  this.grid.insertTile(new Tile({ x: 2, y: 3 }, "Z"));
+//  this.grid.insertTile(new Tile({ x: 2, y: 3 }, "Z"));
 };
 
 // Sends the updated grid to the actuator
@@ -275,8 +320,11 @@ GameManager.prototype.getVector = function (direction) {
 GameManager.prototype.buildTraversals = function (vector) {
   var traversals = { x: [], y: [] };
 
-  for (var pos = 0; pos < this.size; pos++) {
+  for (var pos = 0; pos < this.dim.x; pos++) {
     traversals.x.push(pos);
+  }
+
+  for (var pos = 0; pos < this.dim.y; pos++) {
     traversals.y.push(pos);
   }
 
@@ -318,8 +366,8 @@ GameManager.prototype.tileMatchesAvailable = function () {
 
   var tile;
 
-  for (var x = 0; x < this.size; x++) {
-    for (var y = 0; y < this.size; y++) {
+  for (var x = 0; x < this.dim.x; x++) {
+    for (var y = 0; y < this.dim.y; y++) {
       tile = this.grid.cellContent({ x: x, y: y });
 
       if (tile) {

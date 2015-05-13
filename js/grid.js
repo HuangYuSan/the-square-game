@@ -1,5 +1,5 @@
-function Grid(size, previousState) {
-  this.size = size;
+function Grid(dim, previousState) {
+  this.dim = dim;
   this.cells = previousState ? this.fromState(previousState) : this.empty();
 }
 
@@ -7,10 +7,10 @@ function Grid(size, previousState) {
 Grid.prototype.empty = function () {
   var cells = [];
 
-  for (var x = 0; x < this.size; x++) {
+  for (var x = 0; x < this.dim.x; x++) {
     var row = cells[x] = [];
 
-    for (var y = 0; y < this.size; y++) {
+    for (var y = 0; y < this.dim.y; y++) {
       row.push(null);
     }
   }
@@ -21,10 +21,10 @@ Grid.prototype.empty = function () {
 Grid.prototype.fromState = function (state) {
   var cells = [];
 
-  for (var x = 0; x < this.size; x++) {
+  for (var x = 0; x < this.dim.x; x++) {
     var row = cells[x] = [];
 
-    for (var y = 0; y < this.size; y++) {
+    for (var y = 0; y < this.dim.y; y++) {
       var tile = state[x][y];
       row.push(tile ? new Tile(tile.position, tile.value) : null);
     }
@@ -56,8 +56,8 @@ Grid.prototype.availableCells = function () {
 
 // Call callback for every cell
 Grid.prototype.eachCell = function (callback) {
-  for (var x = 0; x < this.size; x++) {
-    for (var y = 0; y < this.size; y++) {
+  for (var x = 0; x < this.dim.x; x++) {
+    for (var y = 0; y < this.dim.y; y++) {
       callback(x, y, this.cells[x][y]);
     }
   }
@@ -95,23 +95,23 @@ Grid.prototype.removeTile = function (tile) {
 };
 
 Grid.prototype.withinBounds = function (position) {
-  return position.x >= 0 && position.x < this.size &&
-         position.y >= 0 && position.y < this.size;
+  return position.x >= 0 && position.x < this.dim.x &&
+         position.y >= 0 && position.y < this.dim.y;
 };
 
 Grid.prototype.serialize = function () {
   var cellState = [];
 
-  for (var x = 0; x < this.size; x++) {
+  for (var x = 0; x < this.dim.x; x++) {
     var row = cellState[x] = [];
 
-    for (var y = 0; y < this.size; y++) {
+    for (var y = 0; y < this.dim.y; y++) {
       row.push(this.cells[x][y] ? this.cells[x][y].serialize() : null);
     }
   }
 
   return {
-    size: this.size,
+    dim: this.dim,
     cells: cellState
   };
 };
