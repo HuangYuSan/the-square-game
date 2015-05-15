@@ -305,7 +305,6 @@ while (moved) {
 						tile.updatePosition({x:tile.x, y:tile.y+1});
 						// Update the score
 						self.score += 1;
-alert(self.score);
 						if (self.score == 3) {
 							self.won = true;
 						}
