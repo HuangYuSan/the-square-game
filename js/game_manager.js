@@ -41,7 +41,7 @@ while (this.gridContainer.firstChild) {
 var size           = Math.max(dim.x, dim.y);
 var cellMargin = 500/(97/12 * size + 1);
 var cellSize = 500/(size * 97/85 + 12/85);
-var cellMarginMobile = 2840/(97/12 * size + 1);
+var cellMarginMobile = 280/(97/12 * size + 1);
 var cellSizeMobile = 280/(size * 97/85 + 12/85);
   var row;
   var cell;
