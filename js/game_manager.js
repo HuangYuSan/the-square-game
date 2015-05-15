@@ -41,6 +41,8 @@ while (this.gridContainer.firstChild) {
 var size           = Math.max(dim.x, dim.y);
 var cellMargin = 500/(97/12 * size + 1);
 var cellSize = 500/(size * 97/85 + 12/85);
+var cellMarginMobile = 280/(97/12 * size + 1);
+var cellSizeMobile = 280/(size * 97/85 + 12/85);
   var row;
   var cell;
   var x = 0;
@@ -55,6 +57,9 @@ var cellSize = 500/(size * 97/85 + 12/85);
 
 this.insertedStylesheet.insertRule(".tile.tile-position-" + (x+1) + "-" + (y+1) + "{-webkit-transform: translate(" + x * cellSize + "px, " + y * cellSize + "px); -moz-transform: translate(" + x * cellSize + "px, " + y * cellSize + "px); transform: translate(" + x * (cellSize + cellMargin) + "px, " + y * (cellSize + cellMargin) + "px);}", this.insertedStylesheet.cssRules.length);
 
+//mobile
+this.insertedStylesheet.insertRule("@media screen and (max-width: 520px) { .tile.tile-position-" + (x+1) + "-" + (y+1) + "{-webkit-transform: translate(" + x * cellSizeMobile + "px, " + y * cellSizeMobile + "px); -moz-transform: translate(" + x * cellSizeMobile + "px, " + y * cellSizeMobile + "px); transform: translate(" + x * (cellSizeMobile + cellMarginMobile) + "px, " + y * (cellSizeMobile + cellMarginMobile) + "px);}}", this.insertedStylesheet.cssRules.length);
+
 		}
 		this.gridContainer.appendChild(row);
 	}
@@ -65,6 +70,13 @@ this.insertedStylesheet.insertRule(".tile, .tile .tile-inner {width: " + cellSiz
 this.insertedStylesheet.insertRule(".grid-row {margin-bottom: " + cellMargin + "px}", this.insertedStylesheet.cssRules.length);
 this.insertedStylesheet.insertRule(".game-container {padding: " + cellMargin + "px}", this.insertedStylesheet.cssRules.length);
 this.insertedStylesheet.insertRule(".tile .tile-inner {font-size: " + 220/size + "px; border-radius: " + 12/size + "px;}", this.insertedStylesheet.cssRules.length);
+
+//mobile
+this.insertedStylesheet.insertRule("@media screen and (max-width: 520px) { .grid-cell {width: " + cellSizeMobile + "px; height: " + cellSizeMobile + "px; margin-right: " + cellMarginMobile + "px;}}", this.insertedStylesheet.cssRules.length);
+this.insertedStylesheet.insertRule("@media screen and (max-width: 520px) { .tile, .tile .tile-inner {width: " + cellSizeMobile + "px; height: " + cellSizeMobile + "px; line-height: " + cellSizeMobile + "px}}", this.insertedStylesheet.cssRules.length);
+this.insertedStylesheet.insertRule("@media screen and (max-width: 520px) { .grid-row {margin-bottom: " + cellMarginMobile + "px}}", this.insertedStylesheet.cssRules.length);
+this.insertedStylesheet.insertRule("@media screen and (max-width: 520px) { .game-container {padding: " + cellMarginMobile + "px}}", this.insertedStylesheet.cssRules.length);
+this.insertedStylesheet.insertRule("@media screen and (max-width: 520px) { .tile .tile-inner {font-size: " + 140/size + "px; border-radius: " + 12/size + "px;}}", this.insertedStylesheet.cssRules.length);
 }
 
 
