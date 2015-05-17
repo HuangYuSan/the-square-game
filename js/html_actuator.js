@@ -1,7 +1,7 @@
 function HTMLActuator() {
   this.tileContainer    = document.querySelector(".tile-container");
   this.scoreContainer   = document.querySelector(".score-container");
-  this.bestContainer    = document.querySelector(".best-container");
+  this.levelIdContainer = document.querySelector(".level-id-container");
   this.messageContainer = document.querySelector(".game-message");
 
   this.score = 0;
@@ -9,6 +9,7 @@ function HTMLActuator() {
 
 HTMLActuator.prototype.actuate = function (grid, metadata) {
   var self = this;
+this.winningNumber = metadata.winningNumber;
 
   window.requestAnimationFrame(function () {
     self.clearContainer(self.tileContainer);
@@ -108,7 +109,7 @@ HTMLActuator.prototype.updateScore = function (score) {
   var difference = score - this.score;
   this.score = score;
 
-  this.scoreContainer.textContent = this.score + "/3";
+  this.scoreContainer.textContent = this.score + "/" + this.winningNumber;
 
   if (difference > 0) {
     var addition = document.createElement("div");
@@ -119,8 +120,8 @@ HTMLActuator.prototype.updateScore = function (score) {
   }
 };
 
-HTMLActuator.prototype.updateBestScore = function (bestScore) {
-  this.bestContainer.textContent = bestScore;
+HTMLActuator.prototype.updateLevelId = function (levelId) {
+  this.levelIdContainer.textContent = levelId;
 };
 
 HTMLActuator.prototype.message = function (won) {

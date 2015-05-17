@@ -12,6 +12,7 @@ function GameManager(InputManager, Actuator, StorageManager) {
   
   this.setup();
 
+this.winningNumber=0;
 }
 
 // Restart the game
@@ -82,12 +83,20 @@ this.insertedStylesheet.insertRule("@media screen and (max-width: 520px) { .tile
 
 // Set up the game
 GameManager.prototype.setup = function () {
-  var previousState = this.storageManager.getGameState();
-
   // Reload the game from a previous game if present
-  if (previousState) {
-    document.getElementById("xsize").value = previousState.grid.dim.x;
-    document.getElementById("ysize").value = previousState.grid.dim.y;
+  if (this.storageManager.getGameState()) {
+	this.restoreGame();
+  } else {
+   var levelId = document.getElementById("level-id").value;
+	this.createGame(levelId);
+  }
+
+  // Update the actuator
+  this.actuate();
+};
+
+GameManager.prototype.restoreGame = function () {
+    var previousState = this.storageManager.getGameState();
     this.grid        = new Grid({x:previousState.grid.dim.x, y:previousState.grid.dim.y} ,
                                 previousState.grid.cells); // Reload grid
     this.createGrid({x:previousState.grid.dim.x, y:previousState.grid.dim.y});
@@ -95,11 +104,12 @@ GameManager.prototype.setup = function () {
     this.over        = previousState.over;
     this.won         = previousState.won;
     this.keepPlaying = previousState.keepPlaying;
-  } else {
-    var x = document.getElementById("xsize").value;
-    var y = document.getElementById("ysize").value;
-    this.grid        = new Grid({x:x, y:y});
-    this.createGrid({x:x, y:y});
+};
+
+GameManager.prototype.createGame = function (levelId) {
+    var dim = {x: levels[levelId].dim.x, y:levels[levelId].dim.y};
+    this.grid        = new Grid(dim);
+    this.createGrid(dim);
     this.score       = 0;
     this.over        = false;
     this.won         = false;
@@ -108,11 +118,8 @@ GameManager.prototype.setup = function () {
     // Create the grid
 
     // Add the initial tiles
-    this.addStartTiles();
-  }
-
-  // Update the actuator
-  this.actuate();
+    this.addStartTiles(levels[levelId].data, dim);
+    this.actuator.updateLevelId(levelId);
 };
 
 GameManager.prototype.addSafeTile = function (position, value) {
@@ -122,47 +129,17 @@ GameManager.prototype.addSafeTile = function (position, value) {
 }
 
 // Set up the initial tiles to start the game with
-GameManager.prototype.addStartTiles = function () {
-  this.addSafeTile({ x: 3, y: 3 }, "I");
-  this.addSafeTile({ x: 3, y: 0 }, "D");
-  this.addSafeTile({ x: 3, y: 2 }, "D");
-  this.addSafeTile({ x: 6, y: 1 }, "D");
-  this.addSafeTile({ x: 5, y: 0 }, "S");
-  this.addSafeTile({ x: 4, y: 3 }, "S");
-  this.addSafeTile({ x: 1, y: 0 }, "E");
-  this.addSafeTile({ x: 6, y: 2 }, "E");
-  this.addSafeTile({ x: 7, y: 2 }, "E");
-  this.addSafeTile({ x: 0, y: 2 }, "E");
-  this.addSafeTile({ x: 8, y: 2 }, "E");
-  this.addSafeTile({ x: 0, y: 4 }, "E");
-  this.addSafeTile({ x: 1, y: 4 }, "E");
-  this.addSafeTile({ x: 2, y: 4 }, "E");
-  this.addSafeTile({ x: 3, y: 4 }, "E");
-  this.addSafeTile({ x: 4, y: 4 }, "E");
-  this.addSafeTile({ x: 6, y: 4 }, "E");
-  this.addSafeTile({ x: 7, y: 4 }, "E");
-  this.addSafeTile({ x: 3, y: 1 }, "E");
-  this.addSafeTile({ x: 8, y: 4 }, "Z");
-  this.addSafeTile({ x: 0, y: 0 }, "K");
-  this.addSafeTile({ x: 0, y: 1 }, "K");
-  this.addSafeTile({ x: 0, y: 2 }, "K");
-  this.addSafeTile({ x: 0, y: 3 }, "K");
-  this.addSafeTile({ x: 1, y: 1 }, "K");
-  this.addSafeTile({ x: 1, y: 3 }, "K");
-  this.addSafeTile({ x: 0, y: 6 }, "K");
-  this.addSafeTile({ x: 0, y: 7 }, "K");
-  this.addSafeTile({ x: 0, y: 8 }, "K");
-  this.addSafeTile({ x: 1, y: 5 }, "K");
-  this.addSafeTile({ x: 1, y: 7 }, "K");
-  this.addSafeTile({ x: 1, y: 8 }, "K");
-  this.addSafeTile({ x: 6, y: 0 }, "K");
-  this.addSafeTile({ x: 7, y: 0 }, "K");
-  this.addSafeTile({ x: 8, y: 0 }, "K");
-  this.addSafeTile({ x: 7, y: 1 }, "K");
-  this.addSafeTile({ x: 8, y: 1 }, "K");
-  this.addSafeTile({ x: 5, y: 1 }, "K");
-  this.addSafeTile({ x: 2, y: 1 }, "/");
-  this.addSafeTile({ x: 1, y: 2 }, "\\");
+GameManager.prototype.addStartTiles = function (data, dim) {
+this.winningNumber = 0;
+for(var i = 0; i < data.length; i++) {
+if (data.charAt(i) != "0") {
+	this.addSafeTile({x: i%dim.x, y: Math.floor(i/dim.x)}, data.charAt(i));
+}
+if (data.charAt(i) == "D") {
+	this.winningNumber ++;
+}
+}
+alert(this.winningNumber);
 };
 
 // Sends the updated grid to the actuator
@@ -183,7 +160,8 @@ GameManager.prototype.actuate = function () {
     over:       this.over,
     won:        this.won,
     bestScore:  this.storageManager.getBestScore(),
-    terminated: this.isGameTerminated()
+    terminated: this.isGameTerminated(),
+    winningNumber: this.winningNumber
   });
 
 };
@@ -317,7 +295,7 @@ while (moved) {
 						tile.updatePosition({x:tile.x, y:tile.y+1});
 						// Update the score
 						self.score += 1;
-						if (self.score == 3) {
+						if (self.score == this.winningNumber) {
 							self.won = true;
 						}
 					}
