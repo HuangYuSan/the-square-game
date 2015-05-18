@@ -1,0 +1,21 @@
+CACHE MANIFEST
+
+CACHE:
+js/animframe_polyfill.js
+js/application.js
+js/bind_polyfill.js
+js/classlist_polyfill.js
+js/game_manager.js
+js/grid.js
+js/html_actuator.js
+js/keyboard_input_manager.js
+js/levels.js
+js/local_storage_manager.js
+js/tile.js
+meta/apple-touch-icon.png
+meta/apple-touch-startup-image-640x1096.png
+meta/apple-touch-startup-image-640x920.png
+#style/fonts/*
+style/main.css
+favicon.ico
+index.html
