@@ -1,7 +1,7 @@
 function HTMLActuator() {
   this.tileContainer    = document.querySelector(".tile-container");
   this.scoreContainer   = document.querySelector(".score-container");
-  this.levelIdContainer = document.querySelector(".level-id-container");
+  this.levelIdContainer = document.getElementById("level-id");
   this.messageContainer = document.querySelector(".game-message");
 
   this.score = 0;

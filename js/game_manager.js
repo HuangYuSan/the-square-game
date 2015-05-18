@@ -8,11 +8,9 @@ function GameManager(InputManager, Actuator, StorageManager) {
   this.gridContainer = document.getElementById("grid-container");
   this.inputManager.on("move", this.move.bind(this));
   this.inputManager.on("restart", this.restart.bind(this));
-  this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
-  
+  this.inputManager.on("nextLevel", this.nextLevel.bind(this));
+  this.winningNumber = 0;
   this.setup();
-
-this.winningNumber=0;
 }
 
 // Restart the game
@@ -23,9 +21,12 @@ GameManager.prototype.restart = function () {
 };
 
 // Keep playing after winning (allows going over 2048)
-GameManager.prototype.keepPlaying = function () {
-  this.keepPlaying = true;
+GameManager.prototype.nextLevel = function () {
+this.levelId ++;
+document.getElementById("level-id").value = parseInt(document.getElementById("level-id").value)+1;
+  this.storageManager.clearGameState();
   this.actuator.continueGame(); // Clear the game won/lost message
+  this.setup();
 };
 
 // Return true if the game is lost, or has won and the user hasn't kept playing
@@ -86,9 +87,10 @@ GameManager.prototype.setup = function () {
   // Reload the game from a previous game if present
   if (this.storageManager.getGameState()) {
 	this.restoreGame();
+	document.getElementById("level-id").value = this.levelId +1;
   } else {
-   var levelId = document.getElementById("level-id").value;
-	this.createGame(levelId);
+   if (this.levelId +1 != parseInt(document.getElementById("level-id").value)) {this.levelId = document.getElementById("level-id").value -1;}
+	this.createGame(this.levelId);
   }
 
   // Update the actuator
@@ -100,13 +102,16 @@ GameManager.prototype.restoreGame = function () {
     this.grid        = new Grid({x:previousState.grid.dim.x, y:previousState.grid.dim.y} ,
                                 previousState.grid.cells); // Reload grid
     this.createGrid({x:previousState.grid.dim.x, y:previousState.grid.dim.y});
-    this.score       = previousState.score;
-    this.over        = previousState.over;
-    this.won         = previousState.won;
-    this.keepPlaying = previousState.keepPlaying;
+    this.score         = previousState.score;
+    this.over          = previousState.over;
+    this.won           = previousState.won;
+    this.keepPlaying   = previousState.keepPlaying;
+    this.winningNumber = previousState.winningNumber;
+    this.levelId       = previousState.levelId;
 };
 
 GameManager.prototype.createGame = function (levelId) {
+    this.levelId = levelId;
     var dim = {x: levels[levelId].dim.x, y:levels[levelId].dim.y};
     this.grid        = new Grid(dim);
     this.createGrid(dim);
@@ -139,7 +144,6 @@ if (data.charAt(i) == "D") {
 	this.winningNumber ++;
 }
 }
-alert(this.winningNumber);
 };
 
 // Sends the updated grid to the actuator
@@ -156,12 +160,13 @@ GameManager.prototype.actuate = function () {
   }
 
   this.actuator.actuate(this.grid, {
-    score:      this.score,
-    over:       this.over,
-    won:        this.won,
-    bestScore:  this.storageManager.getBestScore(),
-    terminated: this.isGameTerminated(),
-    winningNumber: this.winningNumber
+    score:         this.score,
+    over:          this.over,
+    won:           this.won,
+    bestScore:     this.storageManager.getBestScore(),
+    terminated:    this.isGameTerminated(),
+    winningNumber: this.winningNumber,
+    levelId:       this.levelId
   });
 
 };
@@ -169,11 +174,13 @@ GameManager.prototype.actuate = function () {
 // Represent the current game as an object
 GameManager.prototype.serialize = function () {
   return {
-    grid:        this.grid.serialize(),
-    score:       this.score,
-    over:        this.over,
-    won:         this.won,
-    keepPlaying: this.keepPlaying
+    grid:          this.grid.serialize(),
+    score:         this.score,
+    over:          this.over,
+    won:           this.won,
+    keepPlaying:   this.keepPlaying,
+    winningNumber: this.winningNumber,
+    levelId:       this.levelId
   };
 };
 
@@ -295,7 +302,7 @@ while (moved) {
 						tile.updatePosition({x:tile.x, y:tile.y+1});
 						// Update the score
 						self.score += 1;
-						if (self.score == this.winningNumber) {
+						if (self.score == self.winningNumber) {
 							self.won = true;
 						}
 					}
