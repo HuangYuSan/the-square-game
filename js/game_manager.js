@@ -1,7 +1,7 @@
 function GameManager(InputManager, Actuator, StorageManager) {
-  this.inputManager   = new InputManager;
-  this.storageManager = new StorageManager;
-  this.actuator       = new Actuator;
+  this.inputManager   = new InputManager();
+  this.storageManager = new StorageManager();
+  this.actuator       = new Actuator();
   var stylesheetToInsert = document.createElement('style');  
   document.getElementsByTagName('head')[0].appendChild(stylesheetToInsert);
   this.insertedStylesheet = document.styleSheets[document.styleSheets.length - 1];
@@ -79,7 +79,7 @@ this.insertedStylesheet.insertRule("@media screen and (max-width: 520px) { .tile
 this.insertedStylesheet.insertRule("@media screen and (max-width: 520px) { .grid-row {margin-bottom: " + cellMarginMobile + "px}}", this.insertedStylesheet.cssRules.length);
 this.insertedStylesheet.insertRule("@media screen and (max-width: 520px) { .game-container {padding: " + cellMarginMobile + "px}}", this.insertedStylesheet.cssRules.length);
 this.insertedStylesheet.insertRule("@media screen and (max-width: 520px) { .tile .tile-inner {font-size: " + 140/size + "px; border-radius: " + 12/size + "px;}}", this.insertedStylesheet.cssRules.length);
-}
+};
 
 
 // Set up the game
@@ -131,7 +131,7 @@ GameManager.prototype.addSafeTile = function (position, value) {
 	if (this.grid.withinBounds(position)) {
   this.grid.insertTile(new Tile(position, value));
 }
-}
+};
 
 // Set up the initial tiles to start the game with
 GameManager.prototype.addStartTiles = function (data, dim) {
@@ -341,7 +341,7 @@ GameManager.prototype.buildTraversals = function (vector) {
     traversals.x.push(pos);
   }
 
-  for (var pos = 0; pos < this.grid.dim.y; pos++) {
+  for (pos = 0; pos < this.grid.dim.y; pos++) {
     traversals.y.push(pos);
   }
 
