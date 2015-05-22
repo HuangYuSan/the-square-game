@@ -1,6 +1,8 @@
 CACHE MANIFEST
 
 CACHE:
+images/slideleft.svg
+images/slideright.svg
 js/animframe_polyfill.js
 js/application.js
 js/bind_polyfill.js
@@ -15,7 +17,19 @@ js/tile.js
 meta/apple-touch-icon.png
 meta/apple-touch-startup-image-640x1096.png
 meta/apple-touch-startup-image-640x920.png
-#style/fonts/*
+style/fonts/clear-sans.css
+style/fonts/ClearSans-Bold-webfont.eot
+style/fonts/ClearSans-Bold-webfont.svg
+style/fonts/ClearSans-Bold-webfont.woff
+style/fonts/ClearSans-Light-webfont.eot
+style/fonts/ClearSans-Light-webfont.svg
+style/fonts/ClearSans-Light-webfont.woff
+style/fonts/ClearSans-Regular-webfont.eot
+style/fonts/ClearSans-Regular-webfont.svg
+style/fonts/ClearSans-Regular-webfont.woff
 style/main.css
 favicon.ico
 index.html
+
+NETWORK:
+*
