@@ -283,10 +283,10 @@ while (moved) {
 		      if (tile) {
 			if (tile.value == "S" || tile.value == "D") {
 				self.dropTile(tile);
-				if (self.grid.cellContent({x:x, y:y+1}) && self.grid.cellContent({x:x, y:y+1}).value == "/" && !self.grid.cellContent({x:x-1, y:y+1})) {
+				if (self.grid.cellContent({x:x, y:y+1}) && self.grid.cellContent({x:x, y:y+1}).value == "R" && !self.grid.cellContent({x:x-1, y:y+1})) {
 		    			self.moveTile(tile, {x:x-1, y:y+1});
 				}
-				if (self.grid.cellContent({x:x, y:y+1}) && self.grid.cellContent({x:x, y:y+1}).value == "\\" && !self.grid.cellContent({x:x+1, y:y+1})) {
+				if (self.grid.cellContent({x:x, y:y+1}) && self.grid.cellContent({x:x, y:y+1}).value == "L" && !self.grid.cellContent({x:x+1, y:y+1})) {
 		    			self.moveTile(tile, {x:x+1, y:y+1});
 				}
 			}
